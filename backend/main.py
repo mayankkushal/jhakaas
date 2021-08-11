@@ -1,112 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import motor.motor_asyncio
-from fastapi import Depends, FastAPI, Request
-from fastapi_users import FastAPIUsers, models
-from fastapi_users.authentication import (CookieAuthentication,
-                                          JWTAuthentication)
-from fastapi_users.db import MongoDBUserDatabase
 
-# --- MongoDB Setup -----------------------------------------------------------
-
-# MongoDB Configurations
-DATABASE_URL = "mongodb://localhost:27017"
-client = motor.motor_asyncio.AsyncIOMotorClient(
-    DATABASE_URL, uuidRepresentation="standard"
-)
-# MongoDB database instance ("DB" by default, can be changed)
-database = client["jhakaasDB"]
-
-# MongoDB users collection instance ("users" by default, can be changed)
-collection = database["users"]
-
-
-# --- Users Collection Schema Setup -------------------------------------------
-
-# Pydantic models for MongoDB "User" collection schema
-# Learn more at https://frankie567.github.io/fastapi-users/configuration/model/
-
-class User(models.BaseUser):
-    """
-        Fields "id", "is_active" and "is_superuser" are created by this model
-
-        Modify the below lines to add more fields for the user
-
-        WARNING: You must also modify the same lines in the
-        UserCreate model below
-    """
-
-    firstName: str
-    lastName: str
-
-
-class UserCreate(models.BaseUserCreate):
-    """
-        Fields "email" and "password" are created by this model
-
-        Modify the below lines to add more fields for the user
-
-        WARNING: You must also modify the same lines in the
-        User model above
-    """
-
-    firstName: str
-    lastName: str
-
-
-class UserUpdate(User, models.BaseUserUpdate):
-    """
-        This class Extends/Inherits the User class
-    """
-    pass
-
-
-class UserDB(User, models.BaseUserDB):
-    """
-        This class Extends/Inherits the User class
-
-        Field "hashed_password" is created by this model
-    """
-    pass
-
-
-# --- Authentication Method Setup ---------------------------------------------
-
-"""
-    Session duration/expiration can be changed through the lifetime_seconds
-    attribute
-
-    Learn more at https://frankie567.github.io/fastapi-users/configuration/authentication/
-
-"""
-
-# Secret Key (must be changed from "SECRET")
-SECRET = "SECRET"
-
-# Authentication Method JWT
-auth_backends = []
-authentication = JWTAuthentication(secret=SECRET, lifetime_seconds=3600)
-auth_backends.append(authentication)
-
-
-# --- FastAPIUsers Object Declaration -----------------------------------------
-
-# MongoDB "users" collection adaptor for API calls
-user_db = MongoDBUserDatabase(UserDB, collection)
-
-# FastAPI Users helper class with all the configurations from above
-# It provides us all the routes
-fastapi_users = FastAPIUsers(
-    user_db,
-    auth_backends,
-    User,
-    UserCreate,
-    UserUpdate,
-    UserDB
-)
-
+import settings
+from users.models import User
+from users.routes import router as users_router
 
 # --- FastAPI Server Initialization -------------------------------------------
 
@@ -130,63 +30,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
-# --- User Authentication Routes ----------------------------------------------
-
-# Learn more at https://frankie567.github.io/fastapi-users/configuration/routers/
-
-# Add route for Login                           POST "/auth/login"
-app.include_router(
-    fastapi_users.get_auth_router(auth_backends[0]),
-    prefix="/auth",
-    tags=["auth"]
-)
-
-# Add route for Registeration                   POST "/auth/register"
-
-# Below function can be used to init any backend process like sending out a
-# successful registeration email
-
-
-def on_after_register(user: UserDB, request: Request):
-    print("User {user.id} has registered.")
-
-
-app.include_router(
-    # fastapi_users.get_register_router(),
-    fastapi_users.get_register_router(on_after_register),
-    prefix="/auth",
-    tags=["auth"]
-)
-
-# Add route for User utilities "/auth/users/*"
-
-""" 
-    Get current logged in user profile          GET "/auth/users/me"
-    Update current logged in user profile       PATCH "/auth/users/me"
-    Get "_id" user profile                      GET "/auth/users/"
-    Update "_id" user profile                   PATCH "/auth/users/{id}"
-    Delete "_id" user profile                   DELETE "/auth/users/{id}" 
-"""
-
-app.include_router(
-    fastapi_users.get_users_router(),
-    prefix="/auth/users",
-    tags=["auth"]
-)
-
-# Add route for Reset Password utility
-
-"""
-    Forgot Password                             POST /auth/users/forgot-password
-    Reset Password                              POST /auth/users/reset-password                         
-"""
-
-app.include_router(
-    fastapi_users.get_reset_password_router("SECRET"),
-    prefix="/auth/users",
-    tags=["auth"]
-)
+# Add all the routers here
+app.include_router(users_router)
 
 
 # --- Custom Unprotected Routes Template --------------------------------------
@@ -231,7 +76,7 @@ async def post_custom_unprotected_route(
 
 @app.get("/custom-protected-route", tags=["protected-routes"])
 async def get_custom_protected_route(
-    user: User = Depends(fastapi_users.get_current_user)
+    user: User = Depends(settings.USER_AUTH.get_current_user)
 ):
     # Add database CRUD operation logic here
     return "Success!"
@@ -240,7 +85,7 @@ async def get_custom_protected_route(
 @app.post("/custom-protected-route", tags=["protected-routes"])
 async def post_custom_protected_route(
     body: dict,
-    user: User = Depends(fastapi_users.get_current_user)
+    user: User = Depends(settings.USER_AUTH.get_current_user)
 ):
     # Add database CRUD operation logic here
     print(body)
