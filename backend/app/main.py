@@ -3,10 +3,11 @@
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-import settings
 from users.models import User
+from users.routes import USER_AUTH
 from users.routes import router as users_router
+
+from app import settings
 
 # --- FastAPI Server Initialization -------------------------------------------
 
@@ -76,7 +77,7 @@ async def post_custom_unprotected_route(
 
 @app.get("/custom-protected-route", tags=["protected-routes"])
 async def get_custom_protected_route(
-    user: User = Depends(settings.USER_AUTH.get_current_user)
+    user: User = Depends(USER_AUTH.get_current_user)
 ):
     # Add database CRUD operation logic here
     return "Success!"
@@ -85,7 +86,7 @@ async def get_custom_protected_route(
 @app.post("/custom-protected-route", tags=["protected-routes"])
 async def post_custom_protected_route(
     body: dict,
-    user: User = Depends(settings.USER_AUTH.get_current_user)
+    user: User = Depends(USER_AUTH.get_current_user)
 ):
     # Add database CRUD operation logic here
     print(body)

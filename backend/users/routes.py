@@ -1,11 +1,36 @@
 # --- User Authentication Routes ----------------------------------------------
-import settings
+from app import settings
 from fastapi import APIRouter, Request, Response
 from fastapi.params import Depends
+from fastapi_users.authentication.jwt import JWTAuthentication
+from fastapi_users.db.mongodb import MongoDBUserDatabase
 
-from users.models import UserDB
+from users.models import User, UserCreate, UserDB, UserUpdate
+from users.user_authentication import UserAuthentication
 
 router = APIRouter()
+
+# --- FastAPIUsers Object Declaration -----------------------------------------
+
+# MongoDB "users" collection adaptor for API calls
+user_db = MongoDBUserDatabase(UserDB, settings.USER_COLLECTION)
+
+# Authentication Method JWT
+auth_backends = []
+jwt_authentication = JWTAuthentication(
+    secret=settings.SECRET, lifetime_seconds=3600)
+auth_backends.append(jwt_authentication)
+
+# FastAPI Users helper class with all the configurations from above
+# It provides us all the routes
+USER_AUTH = UserAuthentication(
+    user_db,
+    auth_backends,
+    User,
+    UserCreate,
+    UserUpdate,
+    UserDB
+)
 
 
 @router.get("/users/", tags=["users"])
@@ -24,7 +49,7 @@ async def read_user(username: str):
 
 # Add route for Login                           POST "/auth/login"
 router.include_router(
-    settings.USER_AUTH.get_auth_router(settings.auth_backends[0]),
+    USER_AUTH.get_auth_router(auth_backends[0]),
     prefix="/auth/jwt",
     tags=["auth"]
 )
@@ -33,8 +58,8 @@ router.include_router(
 
 
 @router.post("/auth/jwt/refresh", tags=["auth"])
-async def refresh_jwt(response: Response, user=Depends(settings.USER_AUTH.get_current_active_user)):
-    return await settings.jwt_authentication.get_login_response(user, response)
+async def refresh_jwt(response: Response, user=Depends(USER_AUTH.get_current_active_user)):
+    return await jwt_authentication.get_login_response(user, response)
 
 
 # Add route for Registration                   POST "/auth/register"
@@ -49,7 +74,7 @@ def on_after_register(user: UserDB, request: Request):
 
 router.include_router(
     # fastapi_users.get_register_router(),
-    settings.USER_AUTH.get_register_router(on_after_register),
+    USER_AUTH.get_register_router(on_after_register),
     prefix="/auth",
     tags=["auth"]
 )
@@ -65,7 +90,7 @@ router.include_router(
 """
 
 router.include_router(
-    settings.USER_AUTH.get_users_router(),
+    USER_AUTH.get_users_router(),
     prefix="/auth/users",
     tags=["auth"]
 )
@@ -78,7 +103,7 @@ router.include_router(
 """
 
 router.include_router(
-    settings.USER_AUTH.get_reset_password_router("SECRET"),
+    USER_AUTH.get_reset_password_router("SECRET"),
     prefix="/auth/users",
     tags=["auth"]
 )

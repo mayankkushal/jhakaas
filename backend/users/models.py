@@ -2,7 +2,11 @@
 
 # Pydantic models for MongoDB "User" collection schema
 # Learn more at https://frankie567.github.io/fastapi-users/configuration/model/
+from typing import Any
+
 from fastapi_users import models
+from pydantic.main import BaseModel
+from utils import token_generator
 
 
 class User(models.BaseUser):
@@ -47,3 +51,9 @@ class UserDB(User, models.BaseUserDB):
         Field "hashed_password" is created by this model
     """
     pass
+
+
+class Token(BaseModel):
+    user_id: Any
+    token: str = token_generator()
+    is_used: bool = False
