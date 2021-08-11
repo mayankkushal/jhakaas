@@ -13,7 +13,7 @@ class Auth {
     formData.append("username", email);
     formData.append("password", password);
     // Create request
-    const request = new Request("http://localhost:8000/auth/login", {
+    const request = new Request("http://localhost:8000/auth/jwt/login", {
       method: "POST",
       body: formData,
     });

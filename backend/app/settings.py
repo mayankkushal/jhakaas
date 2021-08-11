@@ -13,5 +13,6 @@ client = motor.motor_asyncio.AsyncIOMotorClient(
 # MongoDB database instance ("DB" by default, can be changed)
 DATABASE = client["jhakaasDB"]
 
-# MongoDB users collection instance ("users" by default, can be changed)
+# MongoDB collection instance ("users" by default, can be changed)
 USER_COLLECTION = DATABASE["users"]
+TOKEN_COLLECTION = DATABASE['token']

@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 import jwt
-from app.settings import DATABASE
+from app.settings import DATABASE, TOKEN_COLLECTION
 from fastapi import APIRouter, Body, HTTPException, Request, status
 from fastapi_users import models
 from fastapi_users.db import BaseUserDatabase
@@ -38,9 +38,8 @@ def get_reset_password_router(
         user = await user_db.get_by_email(email)
 
         if user is not None:
-            token_collection = DATABASE['token']
             token = Token(user_id=user.id)
-            token_collection.insert_one(token.dict())
+            TOKEN_COLLECTION.insert_one(token.dict())
             if after_forgot_password:
                 await run_handler(after_forgot_password, user, token.token, request)
 
@@ -58,16 +57,15 @@ def get_reset_password_router(
                     detail=ErrorCode.RESET_PASSWORD_BAD_TOKEN,
                 )
 
-            token_collection = DATABASE['token']
             token_query = {"user_id": user.id,
                            "is_used": False, "token": token}
-            token_document = await token_collection.find_one(token_query)
+            token_document = await TOKEN_COLLECTION.find_one(token_query)
             if not token_document:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.RESET_PASSWORD_BAD_TOKEN,
                 )
-            token_collection.replace_one(
+            TOKEN_COLLECTION.replace_one(
                 {'_id': token_document['_id']}, {"is_used": True})
 
             if user is None or not user.is_active:

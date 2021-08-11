@@ -14,7 +14,7 @@ from app import settings
 # Learn more https://frankie567.github.io/fastapi-users/configuration/routers/
 
 # Initiating FastAPI Server
-app = FastAPI()
+app = FastAPI(title="JHAKAAS", version="0.0.1")
 
 # Managing CORS for the React Frontend connections
 
