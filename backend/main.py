@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
-from fastapi import FastAPI, Request, Depends
+from fastapi import Depends, FastAPI, Request
 from fastapi_users import FastAPIUsers, models
+from fastapi_users.authentication import (CookieAuthentication,
+                                          JWTAuthentication)
 from fastapi_users.db import MongoDBUserDatabase
-from fastapi_users.authentication import CookieAuthentication, JWTAuthentication
-
 
 # --- MongoDB Setup -----------------------------------------------------------
 
@@ -16,7 +17,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(
     DATABASE_URL, uuidRepresentation="standard"
 )
 # MongoDB database instance ("DB" by default, can be changed)
-database = client["DB"]
+database = client["jhakaasDB"]
 
 # MongoDB users collection instance ("users" by default, can be changed)
 collection = database["users"]
@@ -36,7 +37,7 @@ class User(models.BaseUser):
         WARNING: You must also modify the same lines in the
         UserCreate model below
     """
-    
+
     firstName: str
     lastName: str
 
@@ -115,7 +116,7 @@ fastapi_users = FastAPIUsers(
 app = FastAPI()
 
 # Managing CORS for the React Frontend connections
-from fastapi.middleware.cors import CORSMiddleware
+
 origins = [
     "http://localhost",
     "http://localhost:3000"
@@ -145,8 +146,11 @@ app.include_router(
 
 # Below function can be used to init any backend process like sending out a
 # successful registeration email
+
+
 def on_after_register(user: UserDB, request: Request):
     print("User {user.id} has registered.")
+
 
 app.include_router(
     # fastapi_users.get_register_router(),
@@ -197,15 +201,17 @@ app.include_router(
     Learn more https://motor.readthedocs.io/en/stable/
 """
 
+
 @app.get("/custom-unprotected-route", tags=["unprotected-routes"])
 async def get_custom_unprotected_route():
     # Add database CRUD operation logic here
     return "Success!"
 
+
 @app.post("/custom-unprotected-route", tags=["unprotected-routes"])
 async def post_custom_unprotected_route(
     body: dict
-    ):
+):
     # Add database CRUD operation logic here
     print(body)
     return "Success!"
@@ -222,6 +228,7 @@ async def post_custom_unprotected_route(
     Learn more https://motor.readthedocs.io/en/stable/
 """
 
+
 @app.get("/custom-protected-route", tags=["protected-routes"])
 async def get_custom_protected_route(
     user: User = Depends(fastapi_users.get_current_user)
@@ -229,9 +236,10 @@ async def get_custom_protected_route(
     # Add database CRUD operation logic here
     return "Success!"
 
+
 @app.post("/custom-protected-route", tags=["protected-routes"])
 async def post_custom_protected_route(
-    body: dict, 
+    body: dict,
     user: User = Depends(fastapi_users.get_current_user)
 ):
     # Add database CRUD operation logic here

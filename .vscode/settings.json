@@ -1,0 +1,10 @@
+{
+    "python.autoComplete.extraPaths": [
+        "./backend"
+    ],
+    "python.analysis.extraPaths": [
+        "./backend"
+    ],
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "/Users/mayankkushal/.local/share/virtualenvs/backend-jKt9he86"
+}
