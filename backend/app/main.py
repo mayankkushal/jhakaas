@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from beanie.odm.utils.general import init_beanie
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from users.models import User
+from users.models import Token, User
 from users.routes import USER_AUTH
 from users.routes import router as users_router
 
@@ -30,6 +31,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+
+@app.on_event("startup")
+async def on_startup():
+    """
+    Initialize benie on app startup
+    """
+    await init_beanie(database=settings.DATABASE, document_models=[Token])
+
 
 # Add all the routers here
 app.include_router(users_router)

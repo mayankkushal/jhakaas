@@ -4,6 +4,7 @@
 # Learn more at https://frankie567.github.io/fastapi-users/configuration/model/
 from typing import Any
 
+from beanie.odm.documents import Document
 from fastapi_users import models
 from pydantic.main import BaseModel
 from utils import token_generator
@@ -18,7 +19,7 @@ class User(models.BaseUser):
         WARNING: You must also modify the same lines in the
         UserCreate model below
     """
-
+    email: str
     firstName: str
     lastName: str
 
@@ -32,7 +33,7 @@ class UserCreate(models.BaseUserCreate):
         WARNING: You must also modify the same lines in the
         User model above
     """
-
+    email: str
     firstName: str
     lastName: str
 
@@ -53,7 +54,7 @@ class UserDB(User, models.BaseUserDB):
     pass
 
 
-class Token(BaseModel):
+class Token(Document):
     user_id: Any
     token: str = token_generator()
     is_used: bool = False

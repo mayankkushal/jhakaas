@@ -4,11 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-motor = "*"
-fastapi-users = "*"
-uvicorn = "*"
-fastapi = "*"
-beanie = "*"
 
 [dev-packages]
 

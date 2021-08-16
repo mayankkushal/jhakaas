@@ -1,4 +1,6 @@
 import motor.motor_asyncio
+from beanie import init_beanie
+from users.models import Token
 
 # Secret Key (must be changed from "SECRET")
 SECRET = "SECRET"

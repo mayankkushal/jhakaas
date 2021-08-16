@@ -39,7 +39,7 @@ def get_reset_password_router(
 
         if user is not None:
             token = Token(user_id=user.id)
-            TOKEN_COLLECTION.insert_one(token.dict())
+            await token.insert()
             if after_forgot_password:
                 await run_handler(after_forgot_password, user, token.token, request)
 
@@ -57,16 +57,13 @@ def get_reset_password_router(
                     detail=ErrorCode.RESET_PASSWORD_BAD_TOKEN,
                 )
 
-            token_query = {"user_id": user.id,
-                           "is_used": False, "token": token}
-            token_document = await TOKEN_COLLECTION.find_one(token_query)
+            token_document = await Token.find_one(Token.user_id == user.id, Token.is_used == False, Token.token == token)
             if not token_document:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.RESET_PASSWORD_BAD_TOKEN,
                 )
-            TOKEN_COLLECTION.replace_one(
-                {'_id': token_document['_id']}, {"is_used": True})
+            await token_document.set({Token.is_used: True})
 
             if user is None or not user.is_active:
                 raise HTTPException(

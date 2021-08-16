@@ -47,7 +47,7 @@ async def read_user_me():
 async def read_user(username: str):
     return {"username": username}
 
-# Add route for Login                           POST "/auth/login"
+# Add route for Login                           POST "/auth/jwt/login"
 router.include_router(
     USER_AUTH.get_auth_router(auth_backends[0]),
     prefix="/auth/jwt",
@@ -75,6 +75,13 @@ def on_after_register(user: UserDB, request: Request):
 router.include_router(
     # fastapi_users.get_register_router(),
     USER_AUTH.get_register_router(on_after_register),
+    prefix="/auth",
+    tags=["auth"]
+)
+
+router.include_router(
+    # fastapi_users.get_register_router(),
+    USER_AUTH.get_verify_router(),
     prefix="/auth",
     tags=["auth"]
 )
