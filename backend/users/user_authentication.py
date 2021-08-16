@@ -11,8 +11,6 @@ from .reset import get_reset_password_router
 class UserAuthentication(FastAPIUsers):
     def get_reset_password_router(
         self,
-        reset_password_token_secret: str,
-        reset_password_token_lifetime_seconds: int = 3600,
         after_forgot_password: Optional[
             Callable[[models.UD, str, Request], None]
         ] = None,
@@ -31,8 +29,6 @@ class UserAuthentication(FastAPIUsers):
         """
         return get_reset_password_router(
             self.db,
-            reset_password_token_secret,
-            reset_password_token_lifetime_seconds,
             after_forgot_password,
             after_reset_password,
             self.validate_password,

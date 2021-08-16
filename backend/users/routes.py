@@ -73,15 +73,19 @@ def on_after_register(user: UserDB, request: Request):
 
 
 router.include_router(
-    # fastapi_users.get_register_router(),
     USER_AUTH.get_register_router(on_after_register),
     prefix="/auth",
     tags=["auth"]
 )
 
+
+# send email or sms of the token to verify account
+def on_after_verification_request(user: UserDB, token: str, request: Request):
+    pass
+
+
 router.include_router(
-    # fastapi_users.get_register_router(),
-    USER_AUTH.get_verify_router(),
+    USER_AUTH.get_verify_router(on_after_verification_request),
     prefix="/auth",
     tags=["auth"]
 )
@@ -102,6 +106,7 @@ router.include_router(
     tags=["auth"]
 )
 
+
 # Add route for Reset Password utility
 
 """
@@ -109,8 +114,14 @@ router.include_router(
     Reset Password                              POST /auth/users/reset-password                         
 """
 
+
+# send email or sms of the token to reset password
+def on_after_forgot_password(user: UserDB, token: str, request: Request):
+    pass
+
+
 router.include_router(
-    USER_AUTH.get_reset_password_router("SECRET"),
+    USER_AUTH.get_reset_password_router(on_after_forgot_password),
     prefix="/auth/users",
     tags=["auth"]
 )
