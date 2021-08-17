@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from beanie.odm.utils.general import init_beanie
+from database.models import Collection
+from database.routes import router as database_router
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from users.models import Token, User
@@ -38,11 +40,12 @@ async def on_startup():
     """
     Initialize benie on app startup
     """
-    await init_beanie(database=settings.DATABASE, document_models=[Token])
+    await init_beanie(database=settings.DATABASE, document_models=[Token, Collection])
 
 
 # Add all the routers here
 app.include_router(users_router)
+app.include_router(database_router)
 
 
 # --- Custom Unprotected Routes Template --------------------------------------
