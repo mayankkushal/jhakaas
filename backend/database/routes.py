@@ -7,7 +7,9 @@ from bson.objectid import ObjectId
 from fastapi import responses, status
 from fastapi.param_functions import Body, Depends
 from fastapi.routing import APIRouter
+from pymongo.helpers import DuplicateKeyError
 from starlette.responses import Response
+from starlette.status import HTTP_400_BAD_REQUEST
 from users.models import User
 from users.routes import USER_AUTH
 from utils import encode_document
@@ -31,10 +33,35 @@ async def get_collections(
 # collection
 @router.post("/collection", tags=["database"], status_code=status.HTTP_201_CREATED)
 async def create_collection(
+    response: Response,
     collection: Collection = Body(...),
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    await collection.insert()
+    try:
+        await collection.insert()
+        # create a collection with this name
+        # mainly we are focused on creating the indexed fields
+        # other fields can be added later
+        user_collection = DATABASE[collection.name]
+        for field in collection.fields:
+            if field.indexed:
+                user_collection.create_index(field.name)
+        return {"details": "Success"}
+    except DuplicateKeyError:
+        response.status_code = HTTP_400_BAD_REQUEST
+        return {"detail": "Duplicate collection name"}
+
+
+# delete collection, if the user has permission to write
+# collection
+@router.delete("/collection", tags=["database"])
+async def delete_collection(
+    response: Response,
+    collection_name: str,
+    user: User = Depends(USER_AUTH.get_current_user)
+):
+    DATABASE.drop_collection(collection_name)
+    await Collection.find_one(Collection.name == collection_name).delete()
 
 
 # add fields to the collection, if the user has permission to write
@@ -46,8 +73,12 @@ async def add_fields(
     user: User = Depends(USER_AUTH.get_current_user)
 ):
     collection = await Collection.get(collection_id)
+    user_collection = DATABASE[collection.name]
     for field in fields:
         await collection.update(Push({Collection.fields: field.dict()}))
+        # if the fields are to be indexed, create index for them
+        if field.indexed:
+            user_collection.create_index(field.name)
     return collection
 
 
@@ -75,17 +106,21 @@ async def add_data(
     collection = await Collection.get(collection_id)
     user_collection = DATABASE[collection.name]
     user_collection.insert_one(data)
-    return {"details": "Success"}
+    return {"detail": "Success"}
 
 
 # get all data from the collection,
 # if the user has permission to read collection
-@router.post("/collection/get_data", tags=["database"])
+@router.get("/collection/get_data", tags=["database"])
 async def get_data(
-    collection_id: str = Body(..., embed=True),
+    response: Response,
+    collection_name: str,
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    collection = await Collection.get(collection_id)
+    collection = await Collection.find_one(Collection.name == collection_name)
+    if not collection:
+        response.status_code = HTTP_400_BAD_REQUEST
+        return {"detail": "Invalid collection name"}
     user_collection = DATABASE[collection.name]
     data = []
     async for d in user_collection.find():
@@ -95,14 +130,17 @@ async def get_data(
 
 # get single data matching data id from the collection,
 # if the user has permission to read collection
-@router.post("/collection/get_data_one", tags=["database"])
+@router.get("/collection/get_data_one", tags=["database"])
 async def get_data_one(
     response: Response,
-    collection_id: str = Body(...),
-    data_id: str = Body(...),
+    collection_name: str,
+    data_id: str,
     user: User = Depends(USER_AUTH.get_current_user),
 ):
-    collection = await Collection.get(collection_id)
+    collection = await Collection.find_one(Collection.name == collection_name)
+    if not collection:
+        response.status_code = HTTP_400_BAD_REQUEST
+        return {"detail": "Invalid collection name"}
     user_collection = DATABASE[collection.name]
     document = await user_collection.find_one({'_id': ObjectId(data_id)})
     if not document:
@@ -115,11 +153,15 @@ async def get_data_one(
 # collection
 @router.post("/collection/delete_data", tags=["database"])
 async def delete_data(
-    collection_id: str = Body(...),
+    response: Response,
+    collection_name: str = Body(...),
     data_id: str = Body(...),
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    collection = await Collection.get(collection_id)
+    collection = await Collection.find_one(Collection.name == collection_name)
+    if not collection:
+        response.status_code = HTTP_400_BAD_REQUEST
+        return {"detail": "Invalid collection name"}
     user_collection = DATABASE[collection.name]
     user_collection.delete_many({'_id': ObjectId(data_id)})
-    return {"details": "Success"}
+    return {"detail": "Success"}
