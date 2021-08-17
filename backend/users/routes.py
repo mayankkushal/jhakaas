@@ -3,10 +3,10 @@ from app import settings
 from fastapi import APIRouter, Request, Response
 from fastapi.params import Depends
 from fastapi_users.authentication.jwt import JWTAuthentication
-from fastapi_users.db.mongodb import MongoDBUserDatabase
 
 from users.models import User, UserCreate, UserDB, UserUpdate
 from users.user_authentication import UserAuthentication
+from users.userdb import MongoDBUserDatabase
 
 router = APIRouter()
 
@@ -34,8 +34,10 @@ USER_AUTH = UserAuthentication(
 
 
 @router.get("/users/", tags=["users"])
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
+async def read_users(response: Response):
+    users = await user_db.get_all(as_dict=True)
+    response.headers['X-Total-Count'] = str(len(users))
+    return users
 
 
 @router.get("/users/me", tags=["users"])

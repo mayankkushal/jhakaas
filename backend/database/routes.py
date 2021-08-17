@@ -4,7 +4,7 @@ from typing import Any, List
 from app.settings import DATABASE
 from beanie.odm.operators.update.array import Pull, Push
 from bson.objectid import ObjectId
-from fastapi import responses, status
+from fastapi import status
 from fastapi.param_functions import Body, Depends
 from fastapi.routing import APIRouter
 from pymongo.helpers import DuplicateKeyError
