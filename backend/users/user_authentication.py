@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, Type
 from fastapi import APIRouter, Request
 from fastapi_users import FastAPIUsers, models
 
+from users.crud import get_users_router
 from users.verify import get_verify_router
 
 from .reset import get_reset_password_router
@@ -58,4 +59,30 @@ class UserAuthentication(FastAPIUsers):
             self._user_model,
             after_verification_request,
             after_verification,
+        )
+
+    def get_users_router(
+        self,
+        after_update: Optional[
+            Callable[[models.UD, Dict[str, Any], Request], None]
+        ] = None,
+        requires_verification: bool = False,
+    ) -> APIRouter:
+        """
+        Return a router with routes to manage users.
+
+        :param after_update: Optional function called
+        after a successful user update.
+        :param requires_verification: Whether the endpoints
+        require the users to be verified or not.
+        """
+        return get_users_router(
+            self.db,
+            self._user_model,
+            self._user_update_model,
+            self._user_db_model,
+            self.authenticator,
+            after_update,
+            requires_verification,
+            self.validate_password,
         )

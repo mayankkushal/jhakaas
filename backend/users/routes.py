@@ -3,6 +3,7 @@ from app import settings
 from fastapi import APIRouter, Request, Response
 from fastapi.params import Depends
 from fastapi_users.authentication.jwt import JWTAuthentication
+from pydantic.types import UUID4
 
 from users.models import User, UserCreate, UserDB, UserUpdate
 from users.user_authentication import UserAuthentication
@@ -33,21 +34,11 @@ USER_AUTH = UserAuthentication(
 )
 
 
-@router.get("/users/", tags=["users"])
-async def read_users(response: Response):
+@router.get("/auth/users/", tags=["users"])
+async def read_users(response: Response, user=Depends(USER_AUTH.get_current_active_user)):
     users = await user_db.get_all(as_dict=True)
     response.headers['X-Total-Count'] = str(len(users))
     return users
-
-
-@router.get("/users/me", tags=["users"])
-async def read_user_me():
-    return {"username": "fakecurrentuser"}
-
-
-@router.get("/users/{username}", tags=["users"])
-async def read_user(username: str):
-    return {"username": username}
 
 # Add route for Login                           POST "/auth/jwt/login"
 router.include_router(

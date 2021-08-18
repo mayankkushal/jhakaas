@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, List
+from typing import Any, List, Union
 
 from app.settings import DATABASE
 from beanie.odm.operators.update.array import Pull, Push
@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 from fastapi import status
 from fastapi.param_functions import Body, Depends
 from fastapi.routing import APIRouter
+from pydantic.types import UUID4
 from pymongo.helpers import DuplicateKeyError
 from starlette.responses import Response
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -22,15 +23,47 @@ router = APIRouter()
 # user has the permission to read
 
 
-@router.get("/collection", tags=["database"], response_model=List[Collection])
+@router.get("/collection", tags=["database"])
 async def get_collections(
+    response: Response,
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    return await Collection.all().to_list()
+    response.headers['X-Total-Count'] = str(await Collection.count())
+    return list(map(encode_document, await Collection.all().to_list()))
 
+
+@router.get(
+    "/collection/{id:str}",
+    tags=["database"]
+)
+async def get_collection(id: str, user: User = Depends(USER_AUTH.get_current_user)):
+    collection = await Collection.get(id)
+    return encode_document(collection)
+
+
+@router.get(
+    "/collection/{id:str}/fields",
+    tags=["database"]
+)
+async def get_fields(id: str, response: Response, user: User = Depends(USER_AUTH.get_current_user)):
+    collection = await Collection.get(id)
+    response.headers['X-Total-Count'] = str(len(collection.fields))
+    f = list(map(encode_document, collection.fields))
+    return f
+
+
+@router.put(
+    "/collection/{id:str}",
+    tags=["database"]
+)
+async def update_collection(id: str, collection: Collection = Body(...), user: User = Depends(USER_AUTH.get_current_user)):
+    collection = await Collection.get(id)
+    return encode_document(collection)
 
 # create the collection, if the user has permission to create
 # collection
+
+
 @router.post("/collection", tags=["database"], status_code=status.HTTP_201_CREATED)
 async def create_collection(
     response: Response,
@@ -54,44 +87,49 @@ async def create_collection(
 
 # delete collection, if the user has permission to write
 # collection
-@router.delete("/collection", tags=["database"])
+@router.delete("/collection/{id:str}", tags=["database"])
 async def delete_collection(
     response: Response,
-    collection_name: str,
+    id: str,
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    DATABASE.drop_collection(collection_name)
-    await Collection.find_one(Collection.name == collection_name).delete()
+    DATABASE.drop_collection(id)
+    # await Collection.get(id).delete()
 
 
 # add fields to the collection, if the user has permission to write
 # collection
-@router.post("/collection/add_fields", tags=["database"])
+@router.post("/collection/{id:str}/field/add", tags=["database"])
 async def add_fields(
-    collection_id: str = Body(...),
-    fields: List[Field] = Body(...),
+    id: str,
+    fields: Union[List[Field], Field] = Body(...),
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    collection = await Collection.get(collection_id)
+    collection = await Collection.get(id)
     user_collection = DATABASE[collection.name]
-    for field in fields:
-        await collection.update(Push({Collection.fields: field.dict()}))
-        # if the fields are to be indexed, create index for them
-        if field.indexed:
-            user_collection.create_index(field.name)
+    if isinstance(fields, list):
+        for field in fields:
+            await collection.update(Push({Collection.fields: {**fields.dict(), "id": uuid.uuid1()}}))
+            # if the fields are to be indexed, create index for them
+            if field.indexed:
+                user_collection.create_index(field.name)
+    else:
+        await collection.update(Push({Collection.fields: {**fields.dict(), "id": uuid.uuid1()}}))
+        if fields.indexed:
+            user_collection.create_index(fields.name)
     return collection
 
 
 # remove fields to the collection, if the user has permission to write
 # collection
-@router.post("/collection/remove_fields", tags=["database"])
+@router.delete("/collection/{collection_id:str}/field/{field_id:str}", tags=["database"])
 async def remove_fields(
-    collection_id: str = Body(...),
-    field_ids: List[str] = Body(...),
+    collection_id: str,
+    field_id: str,
     user: User = Depends(USER_AUTH.get_current_user)
 ):
     collection = await Collection.get(collection_id)
-    await collection.update({"$pull": {Collection.fields: {"id": {"$in": list(map(uuid.UUID, field_ids))}}}})
+    await collection.update({"$pull": {Collection.fields: {"id": {"$eq": uuid.UUID(field_id)}}}})
     return collection
 
 

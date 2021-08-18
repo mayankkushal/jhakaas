@@ -19,7 +19,7 @@ export default async (type: any, params: any) => {
   if (type === AUTH_ERROR) {
     const { status } = params;
     if (status === 401 || status === 403) {
-      localStorage.removeItem("username");
+      localStorage.removeItem("token");
       return Promise.reject();
     }
     return Promise.resolve();

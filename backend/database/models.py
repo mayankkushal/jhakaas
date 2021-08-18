@@ -1,5 +1,5 @@
 from typing import List, Optional
-from uuid import UUID, uuid4
+from uuid import UUID, uuid1
 
 from beanie.odm.documents import Document
 from beanie.odm.fields import Indexed
@@ -13,7 +13,7 @@ class FieldType:
 
 
 class Field(BaseModel):
-    id: UUID = uuid4()
+    id: Optional[UUID]
     name: str
     type: Optional[str]
     indexed: bool = False
