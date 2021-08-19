@@ -9,6 +9,7 @@ import { CollectionList } from "./component/database/List";
 import { UserCreate } from "./component/users/Create";
 import { UserEdit } from "./component/users/Edit";
 import { UserList } from "./component/users/List";
+import customRoutes from "./customRoutes";
 import { theme } from "./theme";
 
 // function App() {
@@ -43,7 +44,12 @@ const fetchJson = (url: string, options: any = {}) => {
 
 const dataProvider = jsonServerProvider("http://localhost:8000", fetchJson);
 const App = () => (
-  <Admin dataProvider={dataProvider} authProvider={authProvider} theme={theme}>
+  <Admin
+    dataProvider={dataProvider}
+    authProvider={authProvider}
+    theme={theme}
+    customRoutes={customRoutes}
+  >
     <Resource
       name="auth/users"
       options={{ label: "Users" }}

@@ -8,6 +8,7 @@ from fastapi import status
 from fastapi.param_functions import Body, Depends
 from fastapi.routing import APIRouter
 from pydantic.types import UUID4
+from pydantic.utils import Obj
 from pymongo.helpers import DuplicateKeyError
 from starlette.responses import Response
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -48,8 +49,7 @@ async def get_collection(id: str, user: User = Depends(USER_AUTH.get_current_use
 async def get_fields(id: str, response: Response, user: User = Depends(USER_AUTH.get_current_user)):
     collection = await Collection.get(id)
     response.headers['X-Total-Count'] = str(len(collection.fields))
-    f = list(map(encode_document, collection.fields))
-    return f
+    return list(map(encode_document, collection.fields))
 
 
 @router.put(
@@ -147,20 +147,37 @@ async def add_data(
     return {"detail": "Success"}
 
 
-# get all data from the collection,
-# if the user has permission to read collection
-@router.get("/collection/get_data", tags=["database"])
-async def get_data(
-    response: Response,
-    collection_name: str,
+# update data to the collection, if the user has permission to write
+# collection
+@router.put("/collection/{id:str}/data/{data_id:str}", tags=["database"])
+async def update_data(
+    id: str,
+    data_id: str,
+    data: dict = Body(...),
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    collection = await Collection.find_one(Collection.name == collection_name)
+    collection = await Collection.get(id)
+    user_collection = DATABASE[collection.name]
+    del data['id']
+    user_collection.replace_one({'_id': ObjectId(data_id)}, data)
+    return {"detail": "Success"}
+
+
+# get all data from the collection,
+# if the user has permission to read collection
+@router.get("/collection/{id:str}/show", tags=["database"])
+async def get_data(
+    response: Response,
+    id: str,
+    user: User = Depends(USER_AUTH.get_current_user)
+):
+    collection = await Collection.get(id)
     if not collection:
         response.status_code = HTTP_400_BAD_REQUEST
         return {"detail": "Invalid collection name"}
     user_collection = DATABASE[collection.name]
     data = []
+    response.headers['X-Total-Count'] = str(user_collection.count_documents())
     async for d in user_collection.find():
         data.append(encode_document(d))
     return data
@@ -168,14 +185,14 @@ async def get_data(
 
 # get single data matching data id from the collection,
 # if the user has permission to read collection
-@router.get("/collection/get_data_one", tags=["database"])
+@router.get("/collection/{id:str}/data/{data_id:str}", tags=["database"])
 async def get_data_one(
     response: Response,
-    collection_name: str,
+    id: str,
     data_id: str,
     user: User = Depends(USER_AUTH.get_current_user),
 ):
-    collection = await Collection.find_one(Collection.name == collection_name)
+    collection = await Collection.get(id)
     if not collection:
         response.status_code = HTTP_400_BAD_REQUEST
         return {"detail": "Invalid collection name"}
