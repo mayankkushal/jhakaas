@@ -1,11 +1,11 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   BooleanInput,
   Create,
   PasswordInput,
   SimpleForm,
   TextInput,
-} from "react-admin";
+} from 'react-admin'
 
 export const UserCreate = (props: any) => (
   <Create {...props}>
@@ -19,4 +19,4 @@ export const UserCreate = (props: any) => (
       <TextInput source="lastName" />
     </SimpleForm>
   </Create>
-);
+)

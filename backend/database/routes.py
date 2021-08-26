@@ -135,13 +135,13 @@ async def remove_fields(
 
 # add data to the collection, if the user has permission to write
 # collection
-@router.post("/collection/add_data", tags=["database"], status_code=status.HTTP_201_CREATED)
+@router.post("/collection/{id:str}/data", tags=["database"], status_code=status.HTTP_201_CREATED)
 async def add_data(
-    collection_id: str = Body(...),
+    id: str,
     data: dict = Body(...),
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    collection = await Collection.get(collection_id)
+    collection = await Collection.get(id)
     user_collection = DATABASE[collection.name]
     user_collection.insert_one(data)
     return {"detail": "Success"}

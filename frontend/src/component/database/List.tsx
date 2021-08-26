@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   ArrayField,
   BooleanField,
@@ -7,7 +7,7 @@ import {
   List,
   SingleFieldList,
   TextField,
-} from "react-admin";
+} from 'react-admin'
 
 export const CollectionList = (props: any) => (
   <List {...props}>
@@ -22,4 +22,4 @@ export const CollectionList = (props: any) => (
       </ArrayField>
     </Datagrid>
   </List>
-);
+)

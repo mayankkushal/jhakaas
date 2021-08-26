@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   BooleanInput,
   Button,
@@ -10,22 +10,22 @@ import {
   TextInput,
   Toolbar,
   useRefresh,
-} from "react-admin";
-import { useHistory } from "react-router";
-import { useToolbarStyles } from "../../../styles/toolbar";
+} from 'react-admin'
+import { useHistory } from 'react-router'
+import { useToolbarStyles } from '../../../styles/toolbar'
 
 const FieldCreateToolbar = (props: any) => {
-  const classes = useToolbarStyles(props);
-  const history = useHistory();
-  const refresh = useRefresh();
+  const classes = useToolbarStyles(props)
+  const history = useHistory()
+  const refresh = useRefresh()
 
   const push = () => {
-    history.push(`/collection/${props.collection?.id}`);
-  };
+    history.push(`/collection/${props.collection?.id}`)
+  }
   const onSuccess = () => {
-    push();
-    refresh();
-  };
+    push()
+    refresh()
+  }
   return (
     <Toolbar {...props}>
       <div className={classes.defaultToolbar}>
@@ -38,11 +38,11 @@ const FieldCreateToolbar = (props: any) => {
         <Button label="Cancel" onClick={push} />
       </div>
     </Toolbar>
-  );
-};
+  )
+}
 
 export const FieldCreate = (props: any) => {
-  console.log("props", props);
+  console.log('props', props)
   return (
     <Create
       {...props}
@@ -55,14 +55,14 @@ export const FieldCreate = (props: any) => {
         <SelectInput
           source="type"
           choices={[
-            { id: "string", name: "String" },
-            { id: "bool", name: "Boolean" },
-            { id: "null", name: "Null" },
+            { id: 'string', name: 'String' },
+            { id: 'bool', name: 'Boolean' },
+            { id: 'null', name: 'Null' },
           ]}
           validate={required()}
         />
         <BooleanInput source="indexed" />
       </SimpleForm>
     </Create>
-  );
-};
+  )
+}

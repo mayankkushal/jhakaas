@@ -1,11 +1,11 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   BooleanField,
   Datagrid,
   EmailField,
   List,
   TextField,
-} from "react-admin";
+} from 'react-admin'
 
 export const UserList = (props: any) => (
   <List {...props}>
@@ -19,4 +19,4 @@ export const UserList = (props: any) => (
       <TextField source="lastName" />
     </Datagrid>
   </List>
-);
+)

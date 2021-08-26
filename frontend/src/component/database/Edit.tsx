@@ -1,5 +1,5 @@
-import { Modal, Typography } from "@material-ui/core";
-import React from "react";
+import { Modal, Typography } from '@material-ui/core'
+import React from 'react'
 import {
   BooleanInput,
   CreateButton,
@@ -12,23 +12,23 @@ import {
   Toolbar,
   TopToolbar,
   useEditController,
-} from "react-admin";
-import { Route } from "react-router-dom";
-import { useToolbarStyles } from "../../styles/toolbar";
-import { FieldCreate } from "./fields/Create";
-import { FieldList } from "./fields/List";
+} from 'react-admin'
+import { Route, useParams } from 'react-router-dom'
+import { useToolbarStyles } from '../../styles/toolbar'
+import { FieldCreate } from './fields/Create'
+import { FieldList } from './fields/List'
 
 const Aside = ({ record }: { record?: any }) => {
   return (
-    <div style={{ margin: "1em" }}>
+    <div style={{ margin: '1em' }}>
       <Typography variant="h6">Fields</Typography>
       <FieldList record={record} />
     </div>
-  );
-};
+  )
+}
 
 const CollectionEditToolbar = (props: any) => {
-  const classes = useToolbarStyles(props);
+  const classes = useToolbarStyles(props)
   return (
     <Toolbar {...props}>
       <div className={classes.defaultToolbar}>
@@ -42,29 +42,32 @@ const CollectionEditToolbar = (props: any) => {
         </div>
       </div>
     </Toolbar>
-  );
-};
+  )
+}
 
 const CollectionEditActions = ({
   basePath,
   data,
-  resource,
 }: {
-  basePath?: string;
-  data?: any;
-  resource?: any;
+  basePath?: string
+  data?: any
+  resource?: any
 }) => {
+  const params: { id: string } = useParams()
   return (
     <TopToolbar>
       <ShowButton basePath={basePath} record={data} label="show data" />
-      <CreateButton basePath={basePath} record={data} label="add data" />
+      <CreateButton
+        basePath={`/collection/${params.id}/data_add`}
+        label="add data"
+      />
     </TopToolbar>
-  );
-};
+  )
+}
 
 export const CollectionEdit = (props: any) => {
-  const { record } = useEditController(props);
-  const classes = useToolbarStyles();
+  const { record } = useEditController(props)
+  const classes = useToolbarStyles()
   return (
     <div>
       <Edit
@@ -90,5 +93,5 @@ export const CollectionEdit = (props: any) => {
         )}
       />
     </div>
-  );
-};
+  )
+}

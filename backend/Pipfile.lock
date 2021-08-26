@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cb8d97a46eebbaf4f247cc69b92ec6eec99b168b1ae8116911a8b8c7cc250ad0"
+            "sha256": "8765a0d0cfc073b70f55a77aff01f13fe1b910ee6c083efea5cda0f9e0e9167a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -38,11 +38,11 @@
         },
         "beanie": {
             "hashes": [
-                "sha256:8aab1d2a04c3d3ab499b9828096364a5878beb87f75b4cf7481630eddcaca5ed",
-                "sha256:fd137f1e20df133c4d746319591d3f0a56fd86db9e4a1a27a6b76fe5c20a42d6"
+                "sha256:206ab7245920aa62d34d2b7f92651519c93b6a93c94815413c08cf1bcf074729",
+                "sha256:ec0a75ed396733c403d3719a92947b6d389c062aeb16b0c35112cfe450274a77"
             ],
             "index": "pypi",
-            "version": "==1.2.5"
+            "version": "==1.2.6"
         },
         "cffi": {
             "hashes": [
@@ -128,11 +128,11 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:c9256a89b0436223b45f53fe3a39b178f3da6be5841a2c59deedff4b676d003f",
-                "sha256:f4dba2596b1e0a1f962834c3b9ec4291a7aec387a1031c6c2e25bf239d27fd0f"
+                "sha256:644bb815bae326575c4b2842469fb83053a4b974b82fa792ff9283d17fbbd99d",
+                "sha256:94d2820906c36b9b8303796fb7271337ec89c74223229e3cfcf056b5a7d59e23"
             ],
             "index": "pypi",
-            "version": "==0.68.0"
+            "version": "==0.68.1"
         },
         "fastapi-users": {
             "hashes": [
@@ -167,11 +167,11 @@
         },
         "motor": {
             "hashes": [
-                "sha256:2701f71129fac70d40291a2226bd3ce8682f529711ce2e463d5035d8e937cf9c",
-                "sha256:eafa05a7233f3373ee110b1d7ad0469f7aa942dcd60cb65f7474ae41628a0e0d"
+                "sha256:663473f4498f955d35db7b6f25651cb165514c247136f368b84419cb7635f6b8",
+                "sha256:961fdceacaae2c7236c939166f66415be81be8bbb762da528386738de3a0f509"
             ],
             "index": "pypi",
-            "version": "==2.5.0"
+            "version": "==2.5.1"
         },
         "passlib": {
             "extras": [
@@ -329,6 +329,14 @@
                 "sha256:ffbae429ba9e42d0582d3ac63fdb410338892468a2107d8ff68228ec9a39a0ed"
             ],
             "version": "==3.12.0"
+        },
+        "python-dotenv": {
+            "hashes": [
+                "sha256:aae25dc1ebe97c420f50b81fb0e5c949659af713f31fdb63c749ca68748f34b1",
+                "sha256:f521bc2ac9a8e03c736f62911605c5d83970021e3fa95b37d769e2bbbe9b6172"
+            ],
+            "index": "pypi",
+            "version": "==0.19.0"
         },
         "python-multipart": {
             "hashes": [

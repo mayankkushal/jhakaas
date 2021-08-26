@@ -1,14 +1,14 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   BooleanInput,
   Edit,
   SimpleForm,
   TextInput,
   useEditController,
-} from "react-admin";
+} from 'react-admin'
 
 export const UserEdit = (props: any) => {
-  const { record } = useEditController(props);
+  const { record } = useEditController(props)
   return (
     <Edit {...props} title={`Edit ${record?.email}`}>
       <SimpleForm>
@@ -20,5 +20,5 @@ export const UserEdit = (props: any) => {
         <TextInput source="lastName" />
       </SimpleForm>
     </Edit>
-  );
-};
+  )
+}

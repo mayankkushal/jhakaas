@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import uvicorn
 from beanie.odm.utils.general import init_beanie
-from database.models import Collection
-from database.routes import router as database_router
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app import settings
+from database.models import Collection
+from database.routes import router as database_router
 from users.models import Token, User
 from users.routes import USER_AUTH
 from users.routes import router as users_router
-
-from app import settings
 
 # --- FastAPI Server Initialization -------------------------------------------
 
@@ -36,13 +37,19 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def on_startup():
-    """
-    Initialize benie on app startup
-    """
-    await init_beanie(database=settings.DATABASE, document_models=[Token, Collection])
+async def connect_db():
+    await init_beanie(database=settings.DATABASE,
+                      document_models=[Token, Collection])
 
+
+# @app.on_event("startup")
+# async def on_startup():
+#     """
+#     Initialize benie on app startup
+#     """
+
+
+app.add_event_handler("startup", connect_db)
 
 # Add all the routers here
 app.include_router(users_router)
@@ -105,3 +112,7 @@ async def post_custom_protected_route(
     # Add database CRUD operation logic here
     print(body)
     return "Success!"
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)

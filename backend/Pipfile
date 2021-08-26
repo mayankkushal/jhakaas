@@ -9,6 +9,7 @@ fastapi-users = "*"
 uvicorn = "*"
 fastapi = "*"
 beanie = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
