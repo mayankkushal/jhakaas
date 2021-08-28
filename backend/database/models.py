@@ -21,5 +21,5 @@ class Field(BaseModel):
 
 class Collection(Document):
     name: Indexed(str, unique=True)
-    is_strict: bool = True
-    fields: List[Field]
+    is_strict: bool = False
+    fields: Optional[List[Field]] = []

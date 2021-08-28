@@ -79,7 +79,7 @@ async def create_collection(
         for field in collection.fields:
             if field.indexed:
                 user_collection.create_index(field.name)
-        return {"details": "Success"}
+        return collection.dict()
     except DuplicateKeyError:
         response.status_code = HTTP_400_BAD_REQUEST
         return {"detail": "Duplicate collection name"}
@@ -93,8 +93,10 @@ async def delete_collection(
     id: str,
     user: User = Depends(USER_AUTH.get_current_user)
 ):
-    DATABASE.drop_collection(id)
-    # await Collection.get(id).delete()
+    collection = await Collection.get(id)
+    await DATABASE.drop_collection(collection.name)
+    await collection.delete()
+    return collection.dict()
 
 
 # add fields to the collection, if the user has permission to write

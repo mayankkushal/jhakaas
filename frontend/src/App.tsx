@@ -9,6 +9,7 @@ import authProvider from './auth/authProvider'
 import { CloudFunctionCreate } from './component/cloudFunction/Create'
 import { CloudFunctionEdit } from './component/cloudFunction/Edit'
 import { CloudFunctionList } from './component/cloudFunction/List'
+import { CollectionCreate } from './component/database/Create'
 import { CollectionEdit } from './component/database/Edit'
 import { CollectionList } from './component/database/List'
 import { UserCreate } from './component/users/Create'
@@ -38,6 +39,7 @@ const App = () => (
       options={{ label: 'Database' }}
       list={CollectionList}
       edit={CollectionEdit}
+      create={CollectionCreate}
       icon={StorageOutlinedIcon}
     />
     <Resource
