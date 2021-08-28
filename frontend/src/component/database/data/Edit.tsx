@@ -65,7 +65,7 @@ const DataEditView = (props: any) => {
     payload: { id: params.data_id },
   })
 
-  const [save, _] = useUpdate(
+  const [save] = useUpdate(
     `collection/${params.id}/data`,
     params.data_id,
     jsonData

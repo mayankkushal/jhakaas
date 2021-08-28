@@ -12,6 +12,8 @@ load_dotenv()
 SECRET = os.getenv("SECRET", "RANDOM")
 DEBUG = bool(os.getenv("DEBUG", False))
 
+print("Running with DEBUG", DEBUG)
+
 # --- MongoDB Setup -----------------------------------------------------------
 
 MONGO_HOST = os.environ.get("MONGO_HOST", "localhost")
@@ -23,8 +25,7 @@ MONGO_DB = os.environ.get("MONGO_DB", "jhakaasDB")
 # MONGODB_URL = DatabaseURL(
 #     f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"
 # )
-print("database_______________",
-      f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}")
+
 # MongoDB Configurations
 DATABASE_URL = "mongodb://localhost:27017"
 if not DEBUG:

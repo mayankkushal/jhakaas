@@ -1,4 +1,8 @@
 {
+    "editor.formatOnSave": true,
+    "[*CodeInput.tsx]": {
+        "editor.formatOnSave": false
+    },
     "python.autoComplete.extraPaths": [
         "./backend"
     ],

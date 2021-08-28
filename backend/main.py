@@ -7,6 +7,8 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import settings
+from cloud_function.models import FunctionCode
+from cloud_function.routes import router as cloud_function_router
 from database.models import Collection
 from database.routes import router as database_router
 from users.models import Token, User
@@ -39,7 +41,7 @@ app.add_middleware(
 
 async def connect_db():
     await init_beanie(database=settings.DATABASE,
-                      document_models=[Token, Collection])
+                      document_models=[Token, Collection, FunctionCode])
 
 
 # @app.on_event("startup")
@@ -54,6 +56,7 @@ app.add_event_handler("startup", connect_db)
 # Add all the routers here
 app.include_router(users_router)
 app.include_router(database_router)
+app.include_router(cloud_function_router)
 
 
 # --- Custom Unprotected Routes Template --------------------------------------
