@@ -1,0 +1,9 @@
+build:
+  docker:
+    web: ./backend/Dockerfile
+  config:
+    DEBUG_COLLECTSTATIC: 1
+release:
+  image: web
+  command:
+    - cd backend && uvicorn main:app --port=$PORT

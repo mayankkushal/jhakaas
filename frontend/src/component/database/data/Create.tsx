@@ -1,10 +1,10 @@
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import { makeStyles } from '@material-ui/core/styles'
 // @ts-ignore
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
-import React, { useEffect, useState } from 'react';
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import React, { useEffect, useState } from 'react'
 import {
   Button,
   Loading,
@@ -12,9 +12,9 @@ import {
   Toolbar,
   useCreate,
   useQuery,
-} from 'react-admin';
-import { useHistory, useParams } from 'react-router';
-import { useToolbarStyles } from '../../../styles/toolbar';
+} from 'react-admin'
+import { useParams } from 'react-router'
+import { useToolbarStyles } from '../../../styles/toolbar'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,11 +31,10 @@ const useStyles = makeStyles((theme) => ({
   space: {
     marginTop: theme.spacing(1),
   },
-}));
+}))
 
 const DataEditToolbar = (props: any) => {
-  const classes = useToolbarStyles(props);
-  const history = useHistory();
+  const classes = useToolbarStyles(props)
   return (
     <Toolbar {...props}>
       <div className={classes.defaultToolbar}>
@@ -49,37 +48,37 @@ const DataEditToolbar = (props: any) => {
         />
       </div>
     </Toolbar>
-  );
-};
+  )
+}
 
 const DataCreateView = (props: any) => {
-  const [jsonData, setJsonData] = useState();
-  const classes = useStyles();
-  const params: { id: string; data_id: string } = useParams();
+  const [jsonData, setJsonData] = useState()
+  const classes = useStyles()
+  const params: { id: string; data_id: string } = useParams()
   const query = useQuery({
     type: 'getOne',
     resource: `collection`,
     payload: { id: params.id },
-  });
+  })
 
-  const [save] = useCreate(`collection/${params.id}/data`, jsonData);
+  const [save] = useCreate(`collection/${params.id}/data`, jsonData)
 
   const handleSave = () => {
-    save();
-  };
+    save()
+  }
 
   useEffect(() => {
     if (query.data) {
-      let initMap: any = {};
+      let initMap: any = {}
       query.data.fields.forEach(
         (field: { name: string }) => (initMap[field.name] = '')
-      );
-      setJsonData(initMap);
+      )
+      setJsonData(initMap)
     }
-  }, [query]);
+  }, [query])
 
-  if (query.loading) return <Loading />;
-  if (!query.data) return null;
+  if (query.loading) return <Loading />
+  if (!query.data) return null
 
   return (
     <Card className={classes.cards}>
@@ -91,7 +90,7 @@ const DataCreateView = (props: any) => {
         <DataEditToolbar record={query.data} handleSave={handleSave} />
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default DataCreateView;
+export default DataCreateView
