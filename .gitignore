@@ -9,4 +9,5 @@ frontend/build
 # Local Netlify folder
 .netlify
 backend/.env
+frontend/.env
 heroku.yml
