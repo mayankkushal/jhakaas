@@ -4,3 +4,8 @@ backend/__pycache__/
 frontend/node_modules/
 
 mongo_data/
+
+frontend/build
+# Local Netlify folder
+.netlify
+backend/.env
