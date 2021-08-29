@@ -6,4 +6,4 @@ build:
 release:
   image: web
   command:
-    - cd backend && uvicorn main:app --port=$PORT
+    - uvicorn main:app --port=$PORT
